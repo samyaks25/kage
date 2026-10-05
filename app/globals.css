@@ -1,26 +1,302 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* KAGE Custom Color System */
+  --bg-base: #090a0f;
+  --bg-surface: #12141d;
+  --bg-surface-elevated: #1a1d2a;
+  --bg-overlay: #222638;
+
+  --accent-primary: #ff2e4d;
+  --accent-primary-hover: #ff4d66;
+  --accent-secondary: #38bdf8;
+  --accent-muted: rgba(255, 46, 77, 0.12);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-subtle: #1e293b;
+  --border-default: #334155;
+  --border-accent: rgba(255, 46, 77, 0.4);
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Scale Systems */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
+  --shadow-accent: 0 4px 20px rgba(255, 46, 77, 0.25);
+
+  /* shadcn primitive mappings bound to KAGE palette */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-overlay);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-surface-elevated);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-muted);
+  --accent-foreground: var(--accent-primary);
+  --destructive: var(--color-error);
+  --border: var(--border-subtle);
+  --input: var(--border-default);
+  --ring: var(--accent-primary);
+  --radius: 6px;
+}
+
+.dark {
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-overlay);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-surface-elevated);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-muted);
+  --accent-foreground: var(--accent-primary);
+  --destructive: var(--color-error);
+  --border: var(--border-subtle);
+  --input: var(--border-default);
+  --ring: var(--accent-primary);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-surface-elevated: var(--bg-surface-elevated);
+  --color-bg-overlay: var(--bg-overlay);
+
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-primary-hover: var(--accent-primary-hover);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-muted: var(--accent-muted);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-accent: var(--border-accent);
+
+  --color-kage-success: var(--color-success);
+  --color-kage-warning: var(--color-warning);
+  --color-kage-error: var(--color-error);
+
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-overlay);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent-primary);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--bg-surface-elevated);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-surface);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--accent-muted);
+  --color-accent-foreground: var(--accent-primary);
+  --color-destructive: var(--color-error);
+  --color-border: var(--border-subtle);
+  --color-input: var(--border-default);
+  --color-ring: var(--accent-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base Body & Reset */
+html {
+  color-scheme: dark;
+  background-color: var(--bg-base);
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for KAGE interface */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Hide scrollbar for smooth carousel horizontal scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+  }
+}
+
+/* ============================================================
+   KAGE EDITORIAL LAYER
+   Neo-noir archive utilities — sharp edges, ghost numerals,
+   image masks, film grain, editorial motion.
+   ============================================================ */
+
+/* Ghost outline numerals for editorial rankings */
+.ghost-num {
+  -webkit-text-stroke: 1.5px rgba(248, 250, 252, 0.14);
+  color: transparent;
+  transition:
+    color 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    -webkit-text-stroke 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .ghost-num,
+.ghost-num:hover {
+  color: var(--accent-primary);
+  -webkit-text-stroke: 1.5px var(--accent-primary);
+}
+
+/* Image edge masks — artwork dissolves into the page */
+.mask-fade-right {
+  -webkit-mask-image: linear-gradient(to left, black 58%, transparent 97%);
+  mask-image: linear-gradient(to left, black 58%, transparent 97%);
+}
+
+.mask-fade-bottom {
+  -webkit-mask-image: linear-gradient(to top, black 62%, transparent 98%);
+  mask-image: linear-gradient(to top, black 62%, transparent 98%);
+}
+
+.mask-fade-left {
+  -webkit-mask-image: linear-gradient(to right, black 58%, transparent 97%);
+  mask-image: linear-gradient(to right, black 58%, transparent 97%);
+}
+
+/* Subtle film grain overlay (pure SVG noise, no external asset) */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Slow cinematic drift for hero artwork */
+@keyframes hero-drift {
+  from {
+    transform: scale(1.06) translateY(0);
+  }
+  to {
+    transform: scale(1.15) translateY(-14px);
+  }
+}
+.animate-hero-drift {
+  animation: hero-drift 20s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Vertical editorial side-label */
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Hairline divider */
+.rule {
+  height: 1px;
+  background-color: var(--border-subtle);
+}
+
+/* Underline-style tab (editorial, not pill) */
+.tab-editorial {
+  position: relative;
+  transition: color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tab-editorial::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background-color: var(--accent-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tab-editorial[data-active="true"] {
+  color: var(--text-primary);
+}
+.tab-editorial[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Expandable nav search */
+@keyframes expand-in {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 200px;
+    opacity: 1;
+  }
+}
+.expand-in {
+  animation: expand-in 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Progress track fill */
+.progress-fill {
+  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
 }
