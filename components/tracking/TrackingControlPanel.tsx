@@ -16,8 +16,17 @@ const STATUS_COLORS: Record<TrackingStatus, string> = {
   Rewatching: '#FF2E4D',
 };
 
+export interface DraftState {
+  status: TrackingStatus;
+  watchedEpisodes: number;
+  rating: number | null;
+}
+
 interface TrackingControlPanelProps {
   anime: AnimeItem;
+  /** Draft mode: when provided, controls read from draft and report changes via onDraftChange without mutating the provider. */
+  draft?: DraftState;
+  onDraftChange?: (draft: DraftState) => void;
 }
 
 /**
@@ -27,30 +36,62 @@ interface TrackingControlPanelProps {
  */
 export const TrackingControlPanel: React.FC<
   TrackingControlPanelProps
-> = ({ anime }) => {
+> = ({ anime, draft, onDraftChange }) => {
   const { setStatus, setEpisode, setRating } = useUniverse();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const watched = anime.watchedEpisodes || 0;
+  const watched = draft?.watchedEpisodes ?? (anime.watchedEpisodes || 0);
   const total = anime.totalEpisodes;
-  const status: TrackingStatus =
-    anime.userStatus || 'Plan to Watch';
+  const status: TrackingStatus = draft?.status ?? (anime.userStatus || 'Plan to Watch');
   const isAiring = anime.status === 'Airing';
 
+  const commitDraft = (next: Partial<DraftState>) => {
+    if (!draft) return;
+    onDraftChange?.({ ...draft, ...next });
+  };
+
+   const handleStatusChange = (next: TrackingStatus) => {
+     if (draft) {
+       const newDraft: Partial<DraftState> = { status: next };
+       if (next === 'Completed' && Number.isInteger(anime.totalEpisodes) && anime.totalEpisodes > 0) {
+         newDraft.watchedEpisodes = anime.totalEpisodes;
+       }
+       commitDraft(newDraft);
+     } else {
+       setStatus(anime.id, next);
+     }
+   };
+
+  const handleEpisodeChange = (next: number) => {
+    if (draft) {
+      commitDraft({ watchedEpisodes: next });
+    } else {
+      setEpisode(anime.id, next);
+    }
+  };
+
+  const handleRatingChange = (next: number | null) => {
+    if (draft) {
+      commitDraft({ rating: next });
+    } else {
+      setRating(anime.id, next);
+    }
+  };
+
   return (
-    <div className="space-y-7 font-mono">
+    <div className="space-y-7">
       {/* MY STATUS */}
       <div className="space-y-2.5">
-        <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-[0.2em]">
+        <span className="text-[11px] font-semibold text-[#64748B] tracking-[0.15em]">
           My Status
         </span>
-        <div className="relative">
+        <div className="relative border-b border-[#1E293B] pb-0.5">
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             aria-label="Select tracking status"
             aria-expanded={isDropdownOpen}
-            className="w-full h-11 px-3 rounded-[3px] bg-[#12141D] border border-[#1E293B] hover:border-[#334155] flex items-center justify-between text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2E4D]"
+            className="w-full py-2.5 flex items-center justify-between text-xs font-semibold transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2E4D]"
             style={{ color: STATUS_COLORS[status] }}
           >
             <span className="flex items-center gap-2.5">
@@ -79,16 +120,16 @@ export const TrackingControlPanel: React.FC<
             />
           )}
           {isDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 z-30 bg-[#1A1D2A] border border-[#334155] rounded-[3px] shadow-xl py-1.5">
+            <div className="absolute top-full left-0 right-0 mt-1 z-30 bg-[#090A0F] border-y border-[#1E293B] py-1">
               {ALL_STATUSES.map((st) => (
                 <button
                   key={st}
                   type="button"
                   onClick={() => {
-                    setStatus(anime.id, st);
+                    handleStatusChange(st);
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full px-3 py-2.5 text-left text-xs font-semibold flex items-center justify-between transition-colors hover:bg-[#222638] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FF2E4D]"
+                  className="w-full px-1 py-2.5 text-left text-xs font-semibold flex items-center justify-between transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FF2E4D]"
                   style={{ color: STATUS_COLORS[st] }}
                 >
                   <span className="flex items-center gap-2.5">
@@ -115,14 +156,14 @@ export const TrackingControlPanel: React.FC<
         watched={watched}
         total={total}
         isAiring={isAiring}
-        onChange={(n) => setEpisode(anime.id, n)}
+        onChange={(n) => handleEpisodeChange(n)}
       />
 
       {/* MY RATING */}
       <RatingControl
         communityScore={anime.rating}
-        userRating={anime.userRating ?? null}
-        onChange={(r) => setRating(anime.id, r)}
+        userRating={draft?.rating ?? null}
+        onChange={(r) => handleRatingChange(r)}
       />
     </div>
   );

@@ -80,32 +80,34 @@ export function UniverseProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setStatus = useCallback(
-    (id: string, status: TrackingStatus) => {
-      updateItem(id, (item) => {
-        // Airing series never auto-complete — the episode count is a
-        // moving target, so "Completed" keeps the current known progress.
-        let watched = item.watchedEpisodes || 0;
-        if (status === 'Completed' && item.status !== 'Airing') {
-          watched = item.totalEpisodes;
-        }
-        if (
-          (status === 'Watching' || status === 'Rewatching') &&
-          watched === 0
-        ) {
-          watched = 1;
-        }
-        return {
-          ...item,
-          userStatus: status,
-          watchedEpisodes: watched,
-          isCurrentlyWatching: status === 'Watching' || status === 'Rewatching',
-          lastUpdatedTime: 'Just now',
-        };
-      });
-    },
-    [updateItem],
-  );
+   const setStatus = useCallback(
+     (id: string, status: TrackingStatus) => {
+       updateItem(id, (item) => {
+         let watched = item.watchedEpisodes || 0;
+         if (status === 'Completed') {
+           // Only update episode count if totalEpisodes is a known, valid integer > 0
+           if (Number.isInteger(item.totalEpisodes) && item.totalEpisodes > 0) {
+             watched = item.totalEpisodes;
+           }
+           // If totalEpisodes is unknown, invalid, or <=0, preserve existing watchedEpisodes
+         }
+         if (
+           (status === 'Watching' || status === 'Rewatching') &&
+           watched === 0
+         ) {
+           watched = 1;
+         }
+         return {
+           ...item,
+           userStatus: status,
+           watchedEpisodes: watched,
+           isCurrentlyWatching: status === 'Watching' || status === 'Rewatching',
+           lastUpdatedTime: 'Just now',
+         };
+       });
+     },
+     [updateItem],
+   );
 
   const setEpisode = useCallback(
     (id: string, episode: number) => {
